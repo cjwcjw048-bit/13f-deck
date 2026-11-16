@@ -119,6 +119,26 @@ textarea{width:100%;font-family:"IBM Plex Mono",monospace;font-size:12.5px;line-
 .card.my .stats div{text-align:center}
 .card.my .stats .k{font-size:9.5px;color:var(--muted)}
 .card.my .stats .v{font-family:"IBM Plex Mono",monospace;font-size:12.5px;font-weight:600}
+.schips{display:flex;gap:6px;flex-wrap:wrap}
+.schip{padding:5px 10px;border-radius:999px;border:1px solid var(--line-2);background:var(--surface);font-size:12px;color:var(--ink-2);display:inline-flex;align-items:center;gap:4px}
+.schip:hover{color:var(--ink)}
+.schip.on{border-color:var(--accent);color:var(--ink);box-shadow:0 0 0 1px var(--accent)}
+.schip .pos,.schip .neg{font-family:"IBM Plex Mono",monospace;font-size:10.5px}
+.flow{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:12px}
+@media (max-width:900px){.flow{grid-template-columns:1fr}}
+.fsec{border-left:3px solid var(--line-2);padding:2px 0 4px 10px;margin-bottom:12px}
+.fsec.up{border-left-color:var(--up)}.fsec.dn{border-left-color:var(--down)}
+.fsec h4{margin:0 0 4px;font-size:13px}
+.fsec.up h4{color:var(--up)}.fsec.dn h4{color:var(--down)}
+.frow{display:grid;grid-template-columns:62px 1fr;gap:8px;align-items:start;padding:4px 0;border-top:1px dashed var(--line)}
+.fsec h4+.frow{border-top:0}
+.fcnt{font-size:11.5px;color:var(--muted);font-family:"IBM Plex Mono",monospace;white-space:nowrap;padding-top:2px}
+.fchipwrap{display:flex;flex-wrap:wrap;gap:4px}
+.fchipwrap details{width:100%}.fchipwrap summary{cursor:pointer;font-size:11px;color:var(--muted);margin:2px 0}
+.fchipwrap details .tchip{margin:0 4px 4px 0}
+.tchip{display:inline-flex;align-items:center;gap:2px;font-family:"IBM Plex Mono",monospace;font-size:11.5px;font-weight:600;padding:1px 7px;border-radius:5px;background:var(--surface-2);border:1px solid var(--line);cursor:default}
+.tchip small{font-weight:400;color:var(--muted);font-size:10px;margin-left:2px}
+.tchip .sec-dot{margin-right:3px}
 /* landing */
 .land{position:relative;padding:18px 0 30px}
 body.wall{background:#0f1218}
@@ -211,7 +231,7 @@ tr.hl td{background:color-mix(in oklab,var(--accent) 12%,var(--surface))}
 .fchips .av{width:20px;height:20px;font-size:8px}
 .ctl{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
 .ctl .grow{flex:1}
-.toggle{display:inline-flex;border:1px solid var(--line-2);border-radius:8px;overflow:hidden}
+.toggle{display:inline-flex;border:1px solid var(--line-2);border-radius:8px;overflow:hidden;background:var(--surface)}
 .toggle button{padding:5px 11px;font-size:12px;color:var(--ink-2)}
 .toggle button.on{background:var(--surface-2);color:var(--ink)}
 .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:18px}
@@ -266,11 +286,17 @@ footer{margin-top:40px;font-size:11.5px;color:var(--muted);border-top:1px solid 
 <section class="view" id="v-cons">
   <div class="ctl">
     <div><div class="eyebrow">기준 분기</div><select id="consQ"></select></div>
-    <div><div class="eyebrow">집계 대상</div><div class="toggle" id="consScope"><button class="on" data-s="core">코어 펀드</button><button data-s="watch">관심 펀드</button><button data-s="all">전체</button></div></div>
+    <div><div class="eyebrow">집계 대상</div><div class="toggle" id="consScope"><button class="on" data-s="all">커버리지 전체</button><button data-s="noquant">퀀트 제외</button><button data-s="core">코어 펀드</button><button data-s="watch">관심 펀드</button></div></div>
     <div class="grow"></div>
     <div class="small muted" id="consMeta"></div>
   </div>
   <div class="grid" style="grid-template-columns:1fr;gap:16px">
+    <div class="schips" id="consSectors"></div>
+    <div class="panel">
+      <div class="row" style="justify-content:space-between;align-items:baseline"><h2 style="margin:0">QoQ 동향 요약 <span class="sub" id="flowHead"></span></h2><button class="btn" id="flowCopy">텍스트로 복사</button></div>
+      <div class="flow"><div><h3>주식 수(Shares) 기준</h3><div id="flowShares"></div></div><div><h3>금액 비중(% of Portfolio) 기준 <span class="muted">±0.1%p 이상 · 신규·청산 제외 · (↑↓)=방향 엇갈림, 순증으로 분류</span></h3><div id="flowWeight"></div></div></div>
+      <textarea id="flowText" readonly style="display:none;margin-top:10px;min-height:180px"></textarea>
+    </div>
     <div class="panel"><h2>업종 로테이션 <span class="sub">— 펀드별 업종 비중 변화(%p)의 평균. 양수면 그 업종으로 돈이 옮겨간 것</span></h2><div class="bars" id="rotBars"></div></div>
     <div class="cons">
       <div class="panel"><h2>공통으로 담은 종목 <span class="sub">신규 편입·추가 매수 펀드 수 − 매도 펀드 수</span></h2><div class="tbl" id="consBuy"></div></div>
@@ -533,8 +559,8 @@ function holdTable(q){
 }
 
 // ---------- consensus ----------
-let consPer = D.periods[0], consScope='core';
-function scopeFunds(){ return D.funds.filter(f=>consScope==='core'?f.core:consScope==='watch'?watch.has(f.id):true); }
+let consPer = D.periods[0], consScope='all';
+function scopeFunds(){ return D.funds.filter(f=>consScope==='core'?f.core:consScope==='watch'?watch.has(f.id):consScope==='noquant'?f.style!=='quant':true); }
 function consensusData(per, fs){
   const byTk={}; const rot=Object.fromEntries(SEC.map(s=>[s,{d:0,n:0}])); let n=0;
   for(const f of fs){
@@ -542,7 +568,7 @@ function consensusData(per, fs){
     const q=f.quarters[qi], prev=f.quarters[qi-1];
     if(prev) for(const s of SEC){rot[s].d+=q.mix[s]-prev.mix[s];rot[s].n++;}
     for(const c of q.holdings){
-      const k=c.t||c.c; const t=byTk[k]??={ticker:c.t,issuer:c.n,sector:c.s,hold:[],buy:[],sell:[],net:0,wsum:0};
+      const k=c.t||c.c; const t=byTk[k]??={ticker:c.t,issuer:c.n,sector:c.s||D.tk2sec[c.t]||'',hold:[],buy:[],sell:[],net:0,wsum:0};
       const px=c.sh?c.v/c.sh:0;
       if(c.a!=='청산'){t.hold.push({f,w:c.w,act:c.a,d_w:c.dw});t.wsum+=c.w;}
       if(c.a==='신규'||c.a==='추가')t.buy.push({f,act:c.a,d_w:c.dw});
@@ -556,7 +582,7 @@ function renderCons(){
   $('#consQ').innerHTML = D.periods.map(p=>`<option value="${p}" ${p===consPer?'selected':''}>${qLabel(p)}</option>`).join('');
   const {byTk,rot,n}=consensusData(consPer, scopeFunds());
   $('#consMeta').textContent = `${n}개 펀드 · ${qLabel(consPer)} 공시 기준`;
-  const rows=Object.values(byTk).filter(t=>t.sector!=='ETF');
+  const rows=Object.values(byTk).filter(t=>t.sector!=='ETF'&&(consSector==='all'||secName(t.sector||D.tk2sec[t.ticker]||'')===consSector));
   const maxR=Math.max(.5,...SEC.map(s=>Math.abs(rot[s].n?rot[s].d/rot[s].n:0)));
   $('#rotBars').innerHTML = [...SEC].map(s=>[s,rot[s].n?rot[s].d/rot[s].n:0]).sort((a,b)=>b[1]-a[1]).map(([s,v])=>`<div class="bar"><span><i class="sec-dot" style="background:${secColor(s)}"></i>${s}</span><div class="tr" style="position:relative"><div class="fl" style="position:absolute;top:0;height:100%;${v>=0?'left:50%':'right:50%'};width:${Math.abs(v)/maxR*50}%;background:${v>=0?'var(--up)':'var(--down)'}"></div><div style="position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--line-2)"></div></div><span class="num ${cls(v)}">${pp(v)}</span><span></span></div>`).join('');
   const chips=arr=>`<div class="fchips">${arr.map(x=>av(x.f,20)).join('')}</div>`;
@@ -569,9 +595,63 @@ function renderCons(){
   $('#consBuy').innerHTML = tbl(rows.filter(t=>t.buy.length>=1).sort(consSort.buy==='net'?((a,b)=>b.net-a.net):byCntBuy).slice(0,15),'buy');
   $('#consSell').innerHTML = tbl(rows.filter(t=>t.sell.length>=1).sort(consSort.sell==='net'?((a,b)=>a.net-b.net):byCntSell).slice(0,15),'sell');
   $('#consHold').innerHTML = tbl(rows.filter(t=>t.hold.length>=2).sort(consSort.hold==='net'?((a,b)=>b.wsum/b.hold.length-a.wsum/a.hold.length):((a,b)=>b.hold.length-a.hold.length||b.wsum-a.wsum)).slice(0,20),'hold');
+  renderFlow();
   document.querySelectorAll('#v-cons th.sortable').forEach(h=>h.onclick=()=>{consSort[h.dataset.mode]=h.dataset.sort;lsSet('13fdeck.conssort',consSort);renderCons();});
 }
 const consSort=Object.assign({buy:'cnt',sell:'cnt',hold:'cnt'},lsGet('13fdeck.conssort',{}));
+// ---------- QoQ 동향 요약 (섹터별, 붙여넣기용 텍스트) ----------
+const WT_TH=0.1, FLOW_CAP=40;
+let consSector=lsGet('13fdeck.conssector','all');
+const secName=s=>SEC.includes(s)?s:(s==='ETF'?'ETF':'기타');
+const secOfH=h=>secName(h.s||D.tk2sec[h.t]||(h.t?D.tk2sec[h.t.split('.')[0]]:'')||'');
+const qTag=p=>p?`${Math.floor((+p.slice(5,7)-1)/3)+1}Q${p.slice(2,4)}`:'';
+const prevPeriod=per=>{const i=D.periods.indexOf(per);return i>=0?D.periods[i+1]:null;};
+const SCOPE_LABEL={all:'커버리지 전체',noquant:'퀀트·멀티스트랫 제외',core:'코어 펀드',watch:'관심 펀드'};
+function flowData(per,fs){
+  const sh={'신규':{},'추가':{},'축소':{},'청산':{}}, wt={}, info={}; let n=0;
+  for(const f of fs){
+    const q=f.quarters.find(x=>x.period===per); if(!q) continue; n++;
+    const seenA=new Set(), seenW=new Set();
+    for(const h of q.holdings){
+      if(!h.t) continue; const k=h.t;
+      const inf=info[k]??={t:k,n:h.n,s:secOfH(h),w:0};
+      inf.w+=h.a==='청산'?(h.pw||0):h.w;
+      if(sh[h.a]&&!seenA.has(k+h.a)){seenA.add(k+h.a);(sh[h.a][k]??=[]).push(f);}
+      if((h.a==='추가'||h.a==='축소'||h.a==='유지')&&Math.abs(h.dw)>=WT_TH&&!seenW.has(k)){seenW.add(k);const w=wt[k]??={up:[],dn:[]};(h.dw>0?w.up:w.dn).push(f);}
+    }
+  }
+  return {sh,wt,info,n};
+}
+function flowGroups(entries,info){
+  const by={}; for(const e of entries){ if(e[1]<2) continue; (by[e[1]]??=[]).push(e); }
+  return Object.keys(by).map(Number).sort((a,b)=>b-a).map(c=>[c,by[c].sort((a,b)=>info[b[0]].w-info[a[0]].w)]);
+}
+function flowSections(fd,sector){
+  const inSec=k=>sector==='all'||fd.info[k].s===sector;
+  const shSec=[['신규','신규 편입','up'],['추가','확대','up'],['축소','축소','dn'],['청산','완전 청산','dn']].map(([a,label,dir])=>({label,dir,groups:flowGroups(Object.entries(fd.sh[a]).filter(([k])=>inSec(k)).map(([k,fl])=>[k,fl.length,'',fl]),fd.info)}));
+  const up=[],dn=[];
+  for(const [k,w] of Object.entries(fd.wt)){ if(!inSec(k)) continue; const net=w.up.length-w.dn.length; const ann=(w.up.length&&w.dn.length)?`(${w.up.length}↑${w.dn.length}↓)`:''; if(net>0) up.push([k,net,ann,w.up]); else if(net<0) dn.push([k,-net,ann,w.dn]); }
+  return {shSec,wtSec:[{label:'확대',dir:'up',groups:flowGroups(up,fd.info)},{label:'축소',dir:'dn',groups:flowGroups(dn,fd.info)}]};
+}
+function renderFlow(){
+  const fd=flowData(consPer,scopeFunds()); const pv=prevPeriod(consPer);
+  const tally={}; for(const sx of [...SEC,'기타']) tally[sx]={up:0,dn:0};
+  for(const [a,dir] of [['신규','up'],['추가','up'],['축소','dn'],['청산','dn']]) for(const [k,fl] of Object.entries(fd.sh[a])){ const sx=fd.info[k].s; if(tally[sx]) tally[sx][dir]+=fl.length; }
+  const tot=Object.values(tally).reduce((a,x)=>({up:a.up+x.up,dn:a.dn+x.dn}),{up:0,dn:0});
+  $('#consSectors').innerHTML=[['all','전체 섹터',tot.up,tot.dn],...[...SEC,'기타'].map(sx=>[sx,sx,tally[sx].up,tally[sx].dn])].map(([k,l,u,d])=>`<button class="schip ${consSector===k?'on':''}" data-sec="${k}" title="늘린 펀드-종목 ${u}건 · 줄인 펀드-종목 ${d}건">${k!=='all'?`<i class="sec-dot" style="background:${secColor(k)}"></i>`:''}${l} <span class="pos">▲${u}</span><span class="neg">▼${d}</span></button>`).join('');
+  $('#consSectors').querySelectorAll('[data-sec]').forEach(b=>b.onclick=()=>{consSector=b.dataset.sec;lsSet('13fdeck.conssector',consSector);renderCons();});
+  const {shSec,wtSec}=flowSections(fd,consSector);
+  const chip=e=>{const [k,c,ann,fl]=e; return `<span class="tchip" title="${esc(fd.info[k].n)} · ${esc(fd.info[k].s)}&#10;${esc(fl.map(f=>f.name_ko).join(', '))}">${consSector==='all'?`<i class="sec-dot" style="background:${secColor(fd.info[k].s)}"></i>`:''}${esc(k)}${ann?`<small>${ann}</small>`:''}</span>`;};
+  const block=sec=>`<div class="fsec ${sec.dir}"><h4>${sec.label}</h4>${sec.groups.length?sec.groups.map(([c,es])=>`<div class="frow"><span class="fcnt">${c}개 펀드</span><div class="fchipwrap">${es.slice(0,FLOW_CAP).map(chip).join('')}${es.length>FLOW_CAP?`<details><summary>+${es.length-FLOW_CAP}개 더 보기</summary>${es.slice(FLOW_CAP).map(chip).join('')}</details>`:''}</div></div>`).join(''):'<div class="muted small">2개 이상 펀드가 겹친 종목 없음</div>'}</div>`;
+  $('#flowHead').textContent=`— ${qTag(pv)} → ${qTag(consPer)} · ${fd.n}개 펀드(${SCOPE_LABEL[consScope]})${consSector!=='all'?' · '+consSector:''}`;
+  $('#flowShares').innerHTML=shSec.map(block).join('');
+  $('#flowWeight').innerHTML=wtSec.map(block).join('');
+  const txt=[`${qTag(consPer)} 헤지펀드 포트폴리오 동향 (QoQ change, ${qTag(pv)} → ${qTag(consPer)})`,'',`■ 분석 대상 펀드 ${fd.n}개: ${SCOPE_LABEL[consScope]}${consSector!=='all'?' · 섹터 '+consSector:''}`,'','■ 주식 수(Shares) 기준'];
+  const tx=secs=>{for(const sc of secs){ if(!sc.groups.length) continue; txt.push(sc.label); for(const [c,es] of sc.groups) txt.push(`${c}개 펀드 — ${es.map(e=>e[0]+e[2]).join(', ')}`); txt.push(''); }};
+  tx(shSec); txt.push(`■ 금액 비중(% of Portfolio) 기준 (±${WT_TH}%p 이상, 신규·청산 제외)`); tx(wtSec);
+  $('#flowText').value=txt.join('\n').trim();
+}
+$('#flowCopy').addEventListener('click',async()=>{const ta=$('#flowText'); ta.style.display='block'; ta.focus(); ta.select(); let ok=false; try{await navigator.clipboard.writeText(ta.value); ok=true;}catch(e){try{ok=document.execCommand('copy');}catch(_){}} $('#flowCopy').textContent=ok?'복사됨 ✓':'아래 글을 복사하세요'; setTimeout(()=>{$('#flowCopy').textContent='텍스트로 복사';},1800);});
 $('#consQ').addEventListener('change',e=>{consPer=e.target.value;renderCons();});
 $('#consScope').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{consScope=b.dataset.s;$('#consScope').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));renderCons();}));
 
