@@ -130,6 +130,7 @@ textarea{width:100%;font-family:"IBM Plex Mono",monospace;font-size:12.5px;line-
 .fsec.up{border-left-color:var(--up)}.fsec.dn{border-left-color:var(--down)}
 .fsec h4{margin:0 0 4px;font-size:13px}
 .fsec.up h4{color:var(--up)}.fsec.dn h4{color:var(--down)}
+.fsec.hold{border-left-color:var(--accent);margin-bottom:16px}.fsec.hold h4{color:var(--accent)}
 .frow{display:grid;grid-template-columns:62px 1fr;gap:8px;align-items:start;padding:4px 0;border-top:1px dashed var(--line)}
 .fsec h4+.frow{border-top:0}
 .fcnt{font-size:11.5px;color:var(--muted);font-family:"IBM Plex Mono",monospace;white-space:nowrap;padding-top:2px}
@@ -265,25 +266,17 @@ footer{margin-top:40px;font-size:11.5px;color:var(--muted);border-top:1px solid 
 <header class="top">
   <div class="brand"><h1>13F 덱</h1><div class="sub">SEC 13F-HR 기반 · 최신 <b id="latestQ"></b> · 펀드 <b id="nFunds"></b>개 · 생성 <span id="gen"></span></div></div>
   <nav class="tabs" role="tablist">
-    <button role="tab" data-v="land" aria-selected="true">⚓ 출항</button>
-    <button role="tab" data-v="cons" aria-selected="false">종합 동향</button>
+    <button role="tab" data-v="cons" aria-selected="true">종합 동향</button>
+    <button role="tab" data-v="flow" aria-selected="false">섹터 동향</button>
     <button role="tab" data-v="fund" aria-selected="false">펀드</button>
     <button role="tab" data-v="perf" aria-selected="false">수익률 비교</button>
-    <button role="tab" data-v="my" aria-selected="false">우리 회사</button>
     <button role="tab" data-v="watch" aria-selected="false">관심 펀드</button>
     <button role="tab" data-v="gallery" aria-selected="false">카드 갤러리</button>
   </nav>
 </header>
 
-<section class="view on" id="v-land">
-  <div class="land">
-    <div class="hero"><div class="eyebrow">13F DECK · GRAND LINE</div><h2>누구를 따라가야 보물섬에 도착할까?</h2><p>현상금은 13F에 공시된 롱북 총액. 선장을 고르면 그 선장의 항해일지(포트폴리오)로 갑니다.</p></div>
-    <div class="posters" id="posters"></div>
-    <div class="row" style="justify-content:center;margin-top:22px;gap:10px"><button class="btn primary" data-go="gallery">전체 선원 62명 보기</button><button class="btn" data-go="perf">누가 제일 빨랐나 (수익률 비교)</button><button class="btn" data-go="my">우리 배 점검 (우리 회사)</button></div>
-  </div>
-</section>
 
-<section class="view" id="v-cons">
+<section class="view on" id="v-cons">
   <div class="ctl">
     <div><div class="eyebrow">기준 분기</div><select id="consQ"></select></div>
     <div><div class="eyebrow">집계 대상</div><div class="toggle" id="consScope"><button class="on" data-s="all">커버리지 전체</button><button data-s="noquant">퀀트 제외</button><button data-s="core">코어 펀드</button><button data-s="watch">관심 펀드</button></div></div>
@@ -291,18 +284,29 @@ footer{margin-top:40px;font-size:11.5px;color:var(--muted);border-top:1px solid 
     <div class="small muted" id="consMeta"></div>
   </div>
   <div class="grid" style="grid-template-columns:1fr;gap:16px">
-    <div class="schips" id="consSectors"></div>
-    <div class="panel">
-      <div class="row" style="justify-content:space-between;align-items:baseline"><h2 style="margin:0">QoQ 동향 요약 <span class="sub" id="flowHead"></span></h2><button class="btn" id="flowCopy">텍스트로 복사</button></div>
-      <div class="flow"><div><h3>주식 수(Shares) 기준</h3><div id="flowShares"></div></div><div><h3>금액 비중(% of Portfolio) 기준 <span class="muted">±0.1%p 이상 · 신규·청산 제외 · (↑↓)=방향 엇갈림, 순증으로 분류</span></h3><div id="flowWeight"></div></div></div>
-      <textarea id="flowText" readonly style="display:none;margin-top:10px;min-height:180px"></textarea>
-    </div>
     <div class="panel"><h2>업종 로테이션 <span class="sub">— 펀드별 업종 비중 변화(%p)의 평균. 양수면 그 업종으로 돈이 옮겨간 것</span></h2><div class="bars" id="rotBars"></div></div>
     <div class="cons">
       <div class="panel"><h2>공통으로 담은 종목 <span class="sub">신규 편입·추가 매수 펀드 수 − 매도 펀드 수</span></h2><div class="tbl" id="consBuy"></div></div>
       <div class="panel"><h2>공통으로 덜어낸 종목 <span class="sub">축소·전량 매도 기준</span></h2><div class="tbl" id="consSell"></div></div>
     </div>
     <div class="panel"><h2>가장 많은 펀드가 보유한 종목</h2><div class="tbl" id="consHold"></div></div>
+  </div>
+</section>
+
+<section class="view" id="v-flow">
+  <div class="ctl">
+    <div><div class="eyebrow">기준 분기</div><select id="flowQ"></select></div>
+    <div><div class="eyebrow">집계 대상</div><div class="toggle" id="flowScope"><button class="on" data-s="all">커버리지 전체</button><button data-s="noquant">퀀트 제외</button><button data-s="core">코어 펀드</button><button data-s="watch">관심 펀드</button></div></div>
+    <div class="grow"></div>
+    <button class="btn" id="flowCopy">텍스트로 복사</button>
+  </div>
+  <div class="schips" id="flowSectors" style="margin-bottom:14px"></div>
+  <div class="panel">
+    <h2>QoQ 동향 <span class="sub" id="flowHead"></span></h2>
+    <div id="flowHold"></div>
+    <div class="flow"><div id="flowUp"></div><div id="flowDn"></div></div>
+    <div class="small muted">주식 수 기준(직전 분기 대비 ±0.5% 초과 증감). 2개 이상 펀드가 겹친 종목만, 같은 묶음 안에서는 펀드 비중 합이 큰 순. 종목에 마우스를 올리면 해당 펀드가 보입니다. 퀀트 펀드는 상위 120종목까지만 집계.</div>
+    <textarea id="flowText" readonly style="display:none;margin-top:10px;min-height:180px"></textarea>
   </div>
 </section>
 
@@ -319,7 +323,7 @@ footer{margin-top:40px;font-size:11.5px;color:var(--muted);border-top:1px solid 
     <div class="grow"></div>
     <div class="small muted">추정 수익률 = 13F 롱북 근사치. 벤치마크는 현지통화 가격지수(배당 제외).</div>
   </div>
-  <div class="note" style="margin-bottom:14px">차트에 올릴 펀드는 아래 칩으로 고릅니다(최대 12개). 우리 회사 수익률을 입력해 두면 자동 포함. 표는 전체 펀드.</div>
+  <div class="note" style="margin-bottom:14px">차트에 올릴 펀드는 아래 칩으로 고릅니다(최대 12개). 표는 전체 펀드.</div>
   <div class="picker" id="perfPick"></div>
   <div class="charts">
     <div class="panel"><h2>절대 수익률 <span class="sub">— 기간 시작=100</span></h2><div class="chart-box"><canvas id="chAbs"></canvas></div></div>
@@ -329,34 +333,6 @@ footer{margin-top:40px;font-size:11.5px;color:var(--muted);border-top:1px solid 
   <div class="panel" style="margin-top:16px"><h2>기간별 누적수익률 <span class="sub">— 최신 분기 말 기준. 아래 작은 숫자 = 벤치마크 대비 초과(%p). 헤더 클릭으로 정렬</span></h2><div class="tbl" id="perfTable"></div></div>
 </section>
 
-<section class="view" id="v-my">
-  <div class="panel">
-    <h2>우리 회사 포트폴리오 입력 <span class="sub">— 이 브라우저에만 저장(localStorage). 아래 내보내기로 백업</span></h2>
-    <div class="form">
-      <div class="grid" style="gap:10px">
-        <div class="row"><div class="field" style="flex:1"><label>회사/펀드 이름</label><input type="text" id="myName" placeholder="예: OO자산운용 주식형" style="width:100%"></div>
-          <div class="field"><label>기준 분기</label><select id="myQ"></select></div></div>
-        <div class="field"><label>보유 종목 (한 줄에 하나: 티커, 비중% 또는 평가액[, 업종])</label>
-          <textarea id="myHold" placeholder="NVDA, 12.5&#10;MSFT, 8&#10;005930.KS, 6, 반도체&#10;LLY, 5"></textarea>
-          <div class="hint">비중 합이 90~110이면 비중(%)으로, 아니면 평가액으로 보고 정규화합니다. 업종은 자동 매핑(미국 주식 900여 개) 후, 안 잡히면 세 번째 칸 또는 아래 표에서 지정. 업종명: 반도체 / 테크·인터넷 / 금융 / 소비재 / 헬스케어 / 에너지·소재 / 산업재 / 통신·유틸·부동산</div></div>
-      </div>
-      <div class="grid" style="gap:10px">
-        <div class="field"><label>분기 수익률·AUM 이력 (날짜(분기말), 분기수익률%[, AUM])</label>
-          <textarea id="myRet" placeholder="2025-09-30, 4.2, 1250&#10;2025-12-31, -1.1, 1230&#10;2026-03-31, 6.8, 1310&#10;2026-06-30, 3.5, 1360"></textarea>
-          <div class="hint">수익률 비교 탭에서 펀드·벤치마크와 같은 축에 올라갑니다. AUM 단위는 자유(억원 등).</div></div>
-        <div class="row">
-          <button class="btn primary" id="mySave">저장하고 분석</button>
-          <button class="btn" id="myExport">JSON 내보내기</button>
-          <button class="btn" id="myImport">JSON 가져오기</button>
-          <button class="btn ghost" id="myClear">스냅샷 삭제</button>
-          <span class="small muted" id="mySnaps"></span>
-        </div>
-        <textarea id="myJson" style="min-height:70px;display:none" placeholder="여기에 JSON을 붙여넣고 가져오기"></textarea>
-      </div>
-    </div>
-  </div>
-  <div id="myBody" style="margin-top:16px"></div>
-</section>
 
 <section class="view" id="v-watch">
   <div class="note" style="margin-bottom:14px">카드의 ★를 눌러 관심 펀드로 등록. 이 브라우저에만 저장됩니다. 종합 동향에서 "관심 펀드" 범위로 컨센서스를 다시 집계할 수 있습니다.</div>
@@ -408,7 +384,7 @@ $('#latestQ').textContent = qLabel(LATEST); $('#gen').textContent = D.generated;
 
 // ---------- tabs (lazy render) ----------
 const rendered={};
-const RENDER={land:()=>renderLanding(),cons:()=>renderCons(),fund:()=>{renderPicker();renderFund();},perf:()=>renderPerf(),my:()=>{renderMyForm();renderMy();},watch:()=>renderWatch(),gallery:()=>renderGallery()};
+const RENDER={cons:()=>renderCons(),flow:()=>renderFlow(),fund:()=>{renderPicker();renderFund();},perf:()=>renderPerf(),watch:()=>renderWatch(),gallery:()=>renderGallery()};
 document.querySelectorAll('nav.tabs button').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.v)));
 function showView(v){document.querySelectorAll('nav.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.v===v));document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));lsSet('13fdeck.view',v); if(!rendered[v]){rendered[v]=true;RENDER[v]();}}
 function renderAll(){const v=document.querySelector('nav.tabs button[aria-selected="true"]').dataset.v;for(const k in rendered)delete rendered[k];rendered[v]=true;RENDER[v]();}
@@ -582,7 +558,7 @@ function renderCons(){
   $('#consQ').innerHTML = D.periods.map(p=>`<option value="${p}" ${p===consPer?'selected':''}>${qLabel(p)}</option>`).join('');
   const {byTk,rot,n}=consensusData(consPer, scopeFunds());
   $('#consMeta').textContent = `${n}개 펀드 · ${qLabel(consPer)} 공시 기준`;
-  const rows=Object.values(byTk).filter(t=>t.sector!=='ETF'&&(consSector==='all'||secName(t.sector||D.tk2sec[t.ticker]||'')===consSector));
+  const rows=Object.values(byTk).filter(t=>t.sector!=='ETF');
   const maxR=Math.max(.5,...SEC.map(s=>Math.abs(rot[s].n?rot[s].d/rot[s].n:0)));
   $('#rotBars').innerHTML = [...SEC].map(s=>[s,rot[s].n?rot[s].d/rot[s].n:0]).sort((a,b)=>b[1]-a[1]).map(([s,v])=>`<div class="bar"><span><i class="sec-dot" style="background:${secColor(s)}"></i>${s}</span><div class="tr" style="position:relative"><div class="fl" style="position:absolute;top:0;height:100%;${v>=0?'left:50%':'right:50%'};width:${Math.abs(v)/maxR*50}%;background:${v>=0?'var(--up)':'var(--down)'}"></div><div style="position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--line-2)"></div></div><span class="num ${cls(v)}">${pp(v)}</span><span></span></div>`).join('');
   const chips=arr=>`<div class="fchips">${arr.map(x=>av(x.f,20)).join('')}</div>`;
@@ -595,370 +571,68 @@ function renderCons(){
   $('#consBuy').innerHTML = tbl(rows.filter(t=>t.buy.length>=1).sort(consSort.buy==='net'?((a,b)=>b.net-a.net):byCntBuy).slice(0,15),'buy');
   $('#consSell').innerHTML = tbl(rows.filter(t=>t.sell.length>=1).sort(consSort.sell==='net'?((a,b)=>a.net-b.net):byCntSell).slice(0,15),'sell');
   $('#consHold').innerHTML = tbl(rows.filter(t=>t.hold.length>=2).sort(consSort.hold==='net'?((a,b)=>b.wsum/b.hold.length-a.wsum/a.hold.length):((a,b)=>b.hold.length-a.hold.length||b.wsum-a.wsum)).slice(0,20),'hold');
-  renderFlow();
   document.querySelectorAll('#v-cons th.sortable').forEach(h=>h.onclick=()=>{consSort[h.dataset.mode]=h.dataset.sort;lsSet('13fdeck.conssort',consSort);renderCons();});
 }
 const consSort=Object.assign({buy:'cnt',sell:'cnt',hold:'cnt'},lsGet('13fdeck.conssort',{}));
-// ---------- QoQ 동향 요약 (섹터별, 붙여넣기용 텍스트) ----------
-const WT_TH=0.1, FLOW_CAP=40;
-let consSector=lsGet('13fdeck.conssector','all');
+// ---------- 섹터 동향 (주식 수 기준 QoQ, 붙여넣기용 텍스트) ----------
+const FLOW_CAP=40, HOLD_TOP=40;
+let flowPer=D.periods[0], flowScope='all', flowSector=lsGet('13fdeck.flowsector','all');
 const secName=s=>SEC.includes(s)?s:(s==='ETF'?'ETF':'기타');
 const secOfH=h=>secName(h.s||D.tk2sec[h.t]||(h.t?D.tk2sec[h.t.split('.')[0]]:'')||'');
 const qTag=p=>p?`${Math.floor((+p.slice(5,7)-1)/3)+1}Q${p.slice(2,4)}`:'';
 const prevPeriod=per=>{const i=D.periods.indexOf(per);return i>=0?D.periods[i+1]:null;};
 const SCOPE_LABEL={all:'커버리지 전체',noquant:'퀀트·멀티스트랫 제외',core:'코어 펀드',watch:'관심 펀드'};
+const fundsOf=sc=>D.funds.filter(f=>sc==='core'?f.core:sc==='watch'?watch.has(f.id):sc==='noquant'?f.style!=='quant':true);
 function flowData(per,fs){
-  const sh={'신규':{},'추가':{},'축소':{},'청산':{}}, wt={}, info={}; let n=0;
+  const sh={'보유':{},'신규':{},'추가':{},'축소':{},'청산':{}}, info={}; let n=0;
   for(const f of fs){
     const q=f.quarters.find(x=>x.period===per); if(!q) continue; n++;
-    const seenA=new Set(), seenW=new Set();
+    const seen=new Set();
     for(const h of q.holdings){
       if(!h.t) continue; const k=h.t;
       const inf=info[k]??={t:k,n:h.n,s:secOfH(h),w:0};
       inf.w+=h.a==='청산'?(h.pw||0):h.w;
-      if(sh[h.a]&&!seenA.has(k+h.a)){seenA.add(k+h.a);(sh[h.a][k]??=[]).push(f);}
-      if((h.a==='추가'||h.a==='축소'||h.a==='유지')&&Math.abs(h.dw)>=WT_TH&&!seenW.has(k)){seenW.add(k);const w=wt[k]??={up:[],dn:[]};(h.dw>0?w.up:w.dn).push(f);}
+      for(const a of (h.a==='청산'?['청산']:['보유',h.a])){ if(!sh[a]||seen.has(k+a)) continue; seen.add(k+a); (sh[a][k]??=[]).push(f); }
     }
   }
-  return {sh,wt,info,n};
+  return {sh,info,n};
 }
-function flowGroups(entries,info){
-  const by={}; for(const e of entries){ if(e[1]<2) continue; (by[e[1]]??=[]).push(e); }
+function flowGroups(map,info,inSec,topN){
+  let es=Object.entries(map).filter(([k,fl])=>inSec(k)&&fl.length>=2).map(([k,fl])=>[k,fl.length,fl]);
+  if(topN){ es.sort((a,b)=>b[1]-a[1]||info[b[0]].w-info[a[0]].w); es=es.slice(0,topN); }
+  const by={}; for(const e of es)(by[e[1]]??=[]).push(e);
   return Object.keys(by).map(Number).sort((a,b)=>b-a).map(c=>[c,by[c].sort((a,b)=>info[b[0]].w-info[a[0]].w)]);
 }
-function flowSections(fd,sector){
-  const inSec=k=>sector==='all'||fd.info[k].s===sector;
-  const shSec=[['신규','신규 편입','up'],['추가','확대','up'],['축소','축소','dn'],['청산','완전 청산','dn']].map(([a,label,dir])=>({label,dir,groups:flowGroups(Object.entries(fd.sh[a]).filter(([k])=>inSec(k)).map(([k,fl])=>[k,fl.length,'',fl]),fd.info)}));
-  const up=[],dn=[];
-  for(const [k,w] of Object.entries(fd.wt)){ if(!inSec(k)) continue; const net=w.up.length-w.dn.length; const ann=(w.up.length&&w.dn.length)?`(${w.up.length}↑${w.dn.length}↓)`:''; if(net>0) up.push([k,net,ann,w.up]); else if(net<0) dn.push([k,-net,ann,w.dn]); }
-  return {shSec,wtSec:[{label:'확대',dir:'up',groups:flowGroups(up,fd.info)},{label:'축소',dir:'dn',groups:flowGroups(dn,fd.info)}]};
-}
 function renderFlow(){
-  const fd=flowData(consPer,scopeFunds()); const pv=prevPeriod(consPer);
+  $('#flowQ').innerHTML=D.periods.map(p=>`<option value="${p}" ${p===flowPer?'selected':''}>${qLabel(p)}</option>`).join('');
+  $('#flowQ').onchange=e=>{flowPer=e.target.value;renderFlow();};
+  $('#flowScope').querySelectorAll('button').forEach(b=>{b.classList.toggle('on',b.dataset.s===flowScope);b.onclick=()=>{flowScope=b.dataset.s;renderFlow();};});
+  const fd=flowData(flowPer,fundsOf(flowScope)); const pv=prevPeriod(flowPer);
   const tally={}; for(const sx of [...SEC,'기타']) tally[sx]={up:0,dn:0};
   for(const [a,dir] of [['신규','up'],['추가','up'],['축소','dn'],['청산','dn']]) for(const [k,fl] of Object.entries(fd.sh[a])){ const sx=fd.info[k].s; if(tally[sx]) tally[sx][dir]+=fl.length; }
   const tot=Object.values(tally).reduce((a,x)=>({up:a.up+x.up,dn:a.dn+x.dn}),{up:0,dn:0});
-  $('#consSectors').innerHTML=[['all','전체 섹터',tot.up,tot.dn],...[...SEC,'기타'].map(sx=>[sx,sx,tally[sx].up,tally[sx].dn])].map(([k,l,u,d])=>`<button class="schip ${consSector===k?'on':''}" data-sec="${k}" title="늘린 펀드-종목 ${u}건 · 줄인 펀드-종목 ${d}건">${k!=='all'?`<i class="sec-dot" style="background:${secColor(k)}"></i>`:''}${l} <span class="pos">▲${u}</span><span class="neg">▼${d}</span></button>`).join('');
-  $('#consSectors').querySelectorAll('[data-sec]').forEach(b=>b.onclick=()=>{consSector=b.dataset.sec;lsSet('13fdeck.conssector',consSector);renderCons();});
-  const {shSec,wtSec}=flowSections(fd,consSector);
-  const chip=e=>{const [k,c,ann,fl]=e; return `<span class="tchip" title="${esc(fd.info[k].n)} · ${esc(fd.info[k].s)}&#10;${esc(fl.map(f=>f.name_ko).join(', '))}">${consSector==='all'?`<i class="sec-dot" style="background:${secColor(fd.info[k].s)}"></i>`:''}${esc(k)}${ann?`<small>${ann}</small>`:''}</span>`;};
+  $('#flowSectors').innerHTML=[['all','전체 섹터',tot.up,tot.dn],...[...SEC,'기타'].map(sx=>[sx,sx,tally[sx].up,tally[sx].dn])].map(([k,l,u,d])=>`<button class="schip ${flowSector===k?'on':''}" data-sec="${k}" title="늘린 펀드-종목 ${u}건 · 줄인 펀드-종목 ${d}건">${k!=='all'?`<i class="sec-dot" style="background:${secColor(k)}"></i>`:''}${l} <span class="pos">▲${u}</span><span class="neg">▼${d}</span></button>`).join('');
+  $('#flowSectors').querySelectorAll('[data-sec]').forEach(b=>b.onclick=()=>{flowSector=b.dataset.sec;lsSet('13fdeck.flowsector',flowSector);renderFlow();});
+  const inSec=k=>flowSector==='all'||fd.info[k].s===flowSector;
+  const hold={label:`가장 많은 펀드가 보유 (상위 ${HOLD_TOP})`,dir:'hold',groups:flowGroups(fd.sh['보유'],fd.info,inSec,HOLD_TOP)};
+  const ups=[['신규','신규 편입'],['추가','확대']].map(([a,l])=>({label:l,dir:'up',groups:flowGroups(fd.sh[a],fd.info,inSec)}));
+  const dns=[['축소','축소'],['청산','완전 청산']].map(([a,l])=>({label:l,dir:'dn',groups:flowGroups(fd.sh[a],fd.info,inSec)}));
+  const chip=e=>{const [k,c,fl]=e; return `<span class="tchip" title="${esc(fd.info[k].n)} · ${esc(fd.info[k].s)}&#10;${esc(fl.map(f=>f.name_ko).join(', '))}">${flowSector==='all'?`<i class="sec-dot" style="background:${secColor(fd.info[k].s)}"></i>`:''}${esc(k)}</span>`;};
   const block=sec=>`<div class="fsec ${sec.dir}"><h4>${sec.label}</h4>${sec.groups.length?sec.groups.map(([c,es])=>`<div class="frow"><span class="fcnt">${c}개 펀드</span><div class="fchipwrap">${es.slice(0,FLOW_CAP).map(chip).join('')}${es.length>FLOW_CAP?`<details><summary>+${es.length-FLOW_CAP}개 더 보기</summary>${es.slice(FLOW_CAP).map(chip).join('')}</details>`:''}</div></div>`).join(''):'<div class="muted small">2개 이상 펀드가 겹친 종목 없음</div>'}</div>`;
-  $('#flowHead').textContent=`— ${qTag(pv)} → ${qTag(consPer)} · ${fd.n}개 펀드(${SCOPE_LABEL[consScope]})${consSector!=='all'?' · '+consSector:''}`;
-  $('#flowShares').innerHTML=shSec.map(block).join('');
-  $('#flowWeight').innerHTML=wtSec.map(block).join('');
-  const txt=[`${qTag(consPer)} 헤지펀드 포트폴리오 동향 (QoQ change, ${qTag(pv)} → ${qTag(consPer)})`,'',`■ 분석 대상 펀드 ${fd.n}개: ${SCOPE_LABEL[consScope]}${consSector!=='all'?' · 섹터 '+consSector:''}`,'','■ 주식 수(Shares) 기준'];
-  const tx=secs=>{for(const sc of secs){ if(!sc.groups.length) continue; txt.push(sc.label); for(const [c,es] of sc.groups) txt.push(`${c}개 펀드 — ${es.map(e=>e[0]+e[2]).join(', ')}`); txt.push(''); }};
-  tx(shSec); txt.push(`■ 금액 비중(% of Portfolio) 기준 (±${WT_TH}%p 이상, 신규·청산 제외)`); tx(wtSec);
+  $('#flowHead').textContent=`— ${qTag(pv)} → ${qTag(flowPer)} · ${fd.n}개 펀드(${SCOPE_LABEL[flowScope]})${flowSector!=='all'?' · '+flowSector:''}`;
+  $('#flowHold').innerHTML=block(hold);
+  $('#flowUp').innerHTML=ups.map(block).join('');
+  $('#flowDn').innerHTML=dns.map(block).join('');
+  const txt=[`${qTag(flowPer)} 헤지펀드 포트폴리오 동향 (QoQ change, ${qTag(pv)} → ${qTag(flowPer)})`,'',`■ 분석 대상 펀드 ${fd.n}개: ${SCOPE_LABEL[flowScope]}${flowSector!=='all'?' · 섹터 '+flowSector:''}`,'','■ 주식 수(Shares) 기준'];
+  for(const sc of [...ups,...dns]){ if(!sc.groups.length) continue; txt.push(sc.label); for(const [c,es] of sc.groups) txt.push(`${c}개 펀드 — ${es.map(e=>e[0]).join(', ')}`); txt.push(''); }
+  if(hold.groups.length){ txt.push(`■ ${hold.label}`); for(const [c,es] of hold.groups) txt.push(`${c}개 펀드 — ${es.map(e=>e[0]).join(', ')}`); }
   $('#flowText').value=txt.join('\n').trim();
 }
 $('#flowCopy').addEventListener('click',async()=>{const ta=$('#flowText'); ta.style.display='block'; ta.focus(); ta.select(); let ok=false; try{await navigator.clipboard.writeText(ta.value); ok=true;}catch(e){try{ok=document.execCommand('copy');}catch(_){}} $('#flowCopy').textContent=ok?'복사됨 ✓':'아래 글을 복사하세요'; setTimeout(()=>{$('#flowCopy').textContent='텍스트로 복사';},1800);});
 $('#consQ').addEventListener('change',e=>{consPer=e.target.value;renderCons();});
 $('#consScope').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{consScope=b.dataset.s;$('#consScope').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));renderCons();}));
 
-// ---------- company portfolio (우리 회사) ----------
-const MY = Object.assign({name:'',snaps:{},rets:{},secmap:{}}, lsGet('13fdeck.my',{}));
-function saveMy(){lsSet('13fdeck.my',MY);}
-function parseHold(text){
-  const rows=[]; for(const line of text.split(/\n/)){ const s=line.trim(); if(!s||s.startsWith('#'))continue;
-    const p=s.split(/[,\t;]+|\s{2,}/).map(x=>x.trim()).filter(Boolean); if(!p.length)continue;
-    let t=p[0].toUpperCase(), amt=parseFloat((p[1]||'').replace(/[%,$]/g,''))||0, sec=p[2]||'';
-    if(!amt && p.length===1) amt=1;
-    rows.push({t,amt,sec}); }
-  const sum=rows.reduce((a,r)=>a+r.amt,0); const isW = sum>=90&&sum<=110;
-  for(const r of rows){ r.w = sum?r.amt/sum*100:0; }
-  rows.sort((a,b)=>b.w-a.w); rows.forEach((r,i)=>r.rank=i+1);
-  return {rows,isW,sum};
-}
-function parseRets(text){
-  const out={}; for(const line of text.split(/\n/)){ const p=line.split(/[,\t;]+/).map(x=>x.trim()); if(p.length<2||!/^\d{4}-\d{2}-\d{2}$/.test(p[0]))continue;
-    const ret=parseFloat(p[1]); if(isNaN(ret))continue; out[p[0]]={ret,aum:p[2]?parseFloat(p[2].replace(/,/g,'')):null}; } return out;
-}
-function mySector(t,given){ return MY.secmap[t] || (SEC.includes(given)?given:'') || D.tk2sec[t] || D.tk2sec[t.split('.')[0]] || ''; }
-function myMetrics(snap){
-  const rows=snap.rows.map(r=>({...r,sec:mySector(r.t,r.sec)}));
-  const mix={}; let known=0; for(const s of SEC)mix[s]=0;
-  for(const r of rows){ if(SEC.includes(r.sec)){mix[r.sec]+=r.w;known+=r.w;} }
-  for(const s of SEC) mix[s]= known? mix[s]/known*100 : 0;
-  const top10=rows.slice(0,10).reduce((a,r)=>a+r.w,0); const hhi=rows.reduce((a,r)=>a+r.w*r.w,0)/100;
-  let maxSec='',maxW=-1; for(const s of SEC) if(mix[s]>maxW){maxW=mix[s];maxSec=s;}
-  return {rows,mix,known,top10,hhi,maxSec,maxW,n:rows.length};
-}
-function renderMyForm(){
-  const qs=[...new Set([...D.periods, LATEST])].sort().reverse();
-  $('#myQ').innerHTML = qs.map(p=>`<option value="${p}">${qLabel(p)}</option>`).join('');
-  $('#myName').value = MY.name||'';
-  const keys=Object.keys(MY.snaps).sort(); const last=keys[keys.length-1];
-  if(last){ $('#myQ').value=last; $('#myHold').value=MY.snaps[last].text; }
-  $('#myRet').value = Object.keys(MY.rets).sort().map(k=>`${k}, ${MY.rets[k].ret}${MY.rets[k].aum!=null?', '+MY.rets[k].aum:''}`).join('\n');
-  $('#mySnaps').textContent = keys.length?`저장된 스냅샷: ${keys.map(qLabel).join(' · ')}`:'저장된 스냅샷 없음';
-  $('#myQ').onchange=()=>{ const s=MY.snaps[$('#myQ').value]; if(s) $('#myHold').value=s.text; };
-}
-$('#mySave').addEventListener('click',()=>{
-  MY.name=$('#myName').value.trim()||'우리 회사'; const q=$('#myQ').value; const text=$('#myHold').value;
-  if(text.trim()){ const p=parseHold(text); MY.snaps[q]={text,rows:p.rows,isW:p.isW,saved:new Date().toISOString().slice(0,10)}; }
-  MY.rets=parseRets($('#myRet').value); saveMy(); rendered.perf=false; renderMyForm(); renderMy();
-});
-$('#myExport').addEventListener('click',()=>{ const ta=$('#myJson'); ta.style.display='block'; ta.value=JSON.stringify(MY,null,1); ta.select(); });
-$('#myImport').addEventListener('click',()=>{ const ta=$('#myJson'); if(ta.style.display==='none'){ta.style.display='block';ta.value='';ta.placeholder='JSON을 붙여넣고 다시 가져오기를 누르세요';ta.focus();return;} try{ const o=JSON.parse(ta.value); Object.assign(MY,o); saveMy(); renderMyForm(); renderMy(); rendered.perf=false; ta.style.display='none'; }catch(e){ alert('JSON을 읽지 못했습니다: '+e.message); } });
-$('#myClear').addEventListener('click',()=>{ const q=$('#myQ').value; if(MY.snaps[q]&&confirm(`${qLabel(q)} 스냅샷을 삭제할까요?`)){ delete MY.snaps[q]; saveMy(); renderMyForm(); renderMy(); } });
-
-function renderMy(){
-  const keys=Object.keys(MY.snaps).sort(); const body=$('#myBody');
-  if(!keys.length){ body.innerHTML=`<div class="empty">아직 포트폴리오가 없습니다. 위에 종목을 입력하고 "저장하고 분석"을 누르세요.</div>`; return; }
-  const curKey=keys[keys.length-1], prevKey=keys[keys.length-2];
-  const cur=myMetrics(MY.snaps[curKey]), prev=prevKey?myMetrics(MY.snaps[prevKey]):null;
-  const per = D.periods.includes(curKey)?curKey:D.periods[0];
-  const {byTk}=consensusData(per, D.funds.filter(f=>f.core));
-  const held=t=>byTk[t]||byTk[t.split('.')[0]];
-  const overlaps = D.funds.map(f=>{ const q=f.quarters.find(x=>x.period===per)||lastQ(f); const set=new Map(q.holdings.filter(h=>h.a!=='청산'&&h.t).map(h=>[h.t,h]));
-    const shared=cur.rows.filter(r=>set.has(r.t)||set.has(r.t.split('.')[0])).map(r=>({...r,fh:set.get(r.t)||set.get(r.t.split('.')[0])}));
-    return {f,q,shared,ovl:shared.reduce((a,r)=>a+r.w,0)}; }).sort((a,b)=>(a.f.style==='quant')-(b.f.style==='quant')||b.ovl-a.ovl);
-  let deltaHtml='';
-  if(prev){ const pset=new Set(prev.rows.map(r=>r.t)), cset=new Set(cur.rows.map(r=>r.t));
-    const added=cur.rows.filter(r=>!pset.has(r.t)), removed=prev.rows.filter(r=>!cset.has(r.t));
-    const secD=[...SEC].map(s=>[s,cur.mix[s]-prev.mix[s]]).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1])).slice(0,3);
-    deltaHtml=`<div class="note">${qLabel(prevKey)} → ${qLabel(curKey)}: 신규 ${added.length}종목(${added.slice(0,5).map(r=>r.t).join(', ')||'없음'}), 제외 ${removed.length}종목(${removed.slice(0,5).map(r=>r.t).join(', ')||'없음'}). 업종 변화: ${secD.map(([s,d])=>`${s} ${pp(d)}`).join(', ')}. TOP10 집중도 ${prev.top10.toFixed(0)}% → ${cur.top10.toFixed(0)}%.</div>`; }
-  const unknown=cur.rows.filter(r=>!r.sec);
-  body.innerHTML=`
-  <div class="fund-hero">
-    <div class="card my" style="--tc:var(--accent);max-width:none">
-      <div class="head"><div><div class="nm">${esc(MY.name||'우리 회사')}</div><div class="en">${qLabel(curKey)} 기준 · ${cur.n}종목</div></div>${MY.rets[curKey]&&MY.rets[curKey].aum!=null?`<div class="cost">AUM ${MY.rets[curKey].aum.toLocaleString()}</div>`:''}</div>
-      ${octagon(cur.mix)}
-      <div class="stats" style="margin-top:8px">
-        <div><div class="k">종목</div><div class="v">${cur.n}</div></div>
-        <div><div class="k">TOP10</div><div class="v">${cur.top10.toFixed(0)}%</div></div>
-        <div><div class="k">HHI</div><div class="v">${cur.hhi.toFixed(0)}</div></div>
-        <div><div class="k">최대업종</div><div class="v" style="font-size:11px">${cur.maxSec} ${cur.maxW.toFixed(0)}%</div></div>
-        <div><div class="k">업종분류</div><div class="v">${cur.known.toFixed(0)}%</div></div>
-      </div>
-    </div>
-    <div class="grid">
-      ${deltaHtml}
-      <div class="panel"><h3>업종 구성 ${prev?'<span class="muted">(직전 스냅샷 대비 변화)</span>':''}</h3>${sectorBars(cur.mix, prev&&prev.mix)}</div>
-      <div class="panel"><h3>겹치는 펀드 TOP 8 <span class="muted">— 우리 비중 기준으로 그 펀드도 들고 있는 종목의 합</span></h3>
-        <div class="tbl"><table><thead><tr><th>펀드</th><th class="num">겹침</th><th>공통 종목</th></tr></thead><tbody>${overlaps.slice(0,8).map(o=>`<tr><td><span class="row" style="gap:6px">${av(o.f,22)} ${esc(o.f.name_ko)} <span class="small muted">${esc(o.f.manager_ko)}</span></span></td><td class="num"><b>${o.ovl.toFixed(0)}%</b></td><td class="small">${o.shared.slice(0,6).map(r=>`<span class="tk">${r.t}</span>${r.fh.a==='신규'||r.fh.a==='추가'?'<span class="pos">↑</span>':r.fh.a==='축소'||r.fh.a==='청산'?'<span class="neg">↓</span>':''}`).join(' ')}</td></tr>`).join('')}</tbody></table></div></div>
-    </div>
-  </div>
-  <div class="panel" style="margin-top:16px"><h2>보유 종목 <span class="sub">— 코어 펀드 보유·매매 대조(${qLabel(per)} 공시)${unknown.length?` · 업종 미지정 ${unknown.length}종목은 드롭다운으로 지정`:''}</span></h2>
-    <div class="tbl"><table><thead><tr><th>#</th><th>종목</th><th>업종</th><th class="num">비중</th><th class="num">보유 펀드</th><th>펀드 매매(직전 분기)</th></tr></thead><tbody>
-    ${cur.rows.map(r=>{const t=held(r.t); const buys=t?t.buy:[], sells=t?t.sell:[];
-      return `<tr><td class="num muted">${r.rank}</td><td><span class="tk">${esc(r.t)}</span>${t?` <span class="small muted">${esc(t.issuer)}</span>`:''}</td><td class="small">${r.sec?`<i class="sec-dot" style="background:${secColor(r.sec)}"></i>${r.sec}`:''}<select data-sec="${r.t}" class="small" style="padding:2px 4px;margin-left:4px"><option value="">업종 지정</option>${SEC.map(s=>`<option ${s===r.sec?'selected':''}>${s}</option>`).join('')}</select></td><td class="num">${r.w.toFixed(2)}%</td><td class="num">${t?t.hold.length:0}</td><td>${buys.length?`<span class="pill up">매수 ${buys.length}</span> `:''}${sells.length?`<span class="pill down">매도 ${sells.length}</span> `:''}<span class="fchips" style="display:inline-flex">${[...buys,...sells].slice(0,8).map(x=>av(x.f,18)).join('')}</span></td></tr>`;}).join('')}
-    </tbody></table></div></div>
-  ${(()=>{const {pos,neg}=myComments(overlaps,cur,prev);
-    const col=(title,cls,list)=>`<div class="panel"><h2>${title}</h2><div class="comments">${list.map(x=>`<div class="cm ${cls}">${av(x.f,44)}<div><div class="who"><b>${esc(x.f.manager_ko)}</b> · ${esc(x.f.name_ko)} <span class="ovl">겹침 ${x.ovl.toFixed(0)}%</span></div><div class="q">“${esc(x.text)}”</div></div></div>`).join('')||'<div class="muted small">해당 없음</div>'}</div></div>`;
-    return `<div class="cons" style="margin-top:16px">${col('👍 이 배에 타겠다 — 겹치는 펀드 TOP 8','pos',pos)}${col('👎 배에서 내리겠다 — 다른 길을 가는 펀드','neg',neg)}</div><div class="small muted" style="margin-top:6px">한 줄 평은 각 펀드의 최신 13F 보유·매매를 우리 포트폴리오와 대조해 규칙으로 만든 문장이며 실제 발언이 아닙니다.</div>`;})()}`;
-  body.querySelectorAll('select[data-sec]').forEach(s=>s.addEventListener('change',()=>{ if(s.value)MY.secmap[s.dataset.sec]=s.value; else delete MY.secmap[s.dataset.sec]; saveMy(); renderMy(); }));
-}
-
-
-// ---------- 우리 회사 한 줄 평 (종목 근거 기반) ----------
-const OPEN={value:['싸게 산 게 맞다면','값만 맞으면','오래 들고 갈 거라면'],growth:['성장이 진짜라면','이익이 자라는 한','다음 분기 숫자만 확인되면'],macro:['유동성이 받쳐주는 동안은','금리 방향이 바뀌기 전까진','매크로가 이 그림이면'],activist:['경영진만 제대로 움직이면','이사회가 말을 듣는다면','자본배분만 고치면'],quant:['팩터로 보면','베타를 빼고 보면','리스크 예산 안에서라면'],tech:['이 사이클이 이어지는 한','인프라 수요가 유지되는 한','플랫폼 전환이 계속되면']};
-const hash=str=>{let h=0;for(const c of str)h=(h*31+c.charCodeAt(0))>>>0;return h;};
-const pk=(arr,seed)=>arr[hash(seed)%arr.length];
-function myComments(overlaps,cur,prev){
-  const ours=new Set(cur.rows.map(r=>r.t)); const our1=cur.rows[0];
-  const fundOwn=(f,q)=>q.holdings.filter(h=>h.a!=='청산'&&h.t&&!ours.has(h.t));
-  const pos=[], neg=[]; const used={};
-  const choose=(cands,seed)=>{ if(!cands.length)return null; const order=cands.map((c,i)=>({c,k:(hash(seed)+i*7)%cands.length})).sort((a,b)=>a.k-b.k); const c=order.find(x=>(used[x.c.k]||0)<2)||order[0]; used[c.c.k]=(used[c.c.k]||0)+1; return c.c.t; };
-  const ov=overlaps.filter(o=>o.f.style!=='quant');
-  ov.slice(0,8).forEach((o,i)=>{
-    const f=o.f, q=o.q; const sh=o.shared.slice().sort((a,b)=>b.w-a.w);
-    const bought=sh.filter(r=>r.fh.a==='신규'||r.fh.a==='추가'), sold=sh.filter(r=>r.fh.a==='축소'||r.fh.a==='청산');
-    const top=sh.find(r=>r.fh.w>=1)||sh[0]; const names=sh.slice(0,3).map(r=>r.t).join('·');
-    const op=pk(OPEN[f.style]||OPEN.value,f.id+i);
-    const cands=[];
-    if(top&&top.fh.w>=1) cands.push({k:'rank',t:`${names} 겹치네요. ${top.t}, 우리도 ${top.fh.w.toFixed(1)}%로 ${top.fh.r}번째 큰 자리입니다. ${op} 같이 갑니다.`});
-    if(bought.length){const b=bought[0];cands.push({k:'buy',t:`${b.t}, 우리도 이번 분기 ${b.fh.a==='신규'?'새로 넣었':'더 샀'}습니다(비중 ${pp(b.fh.dw)}). 방향이 같아서 반갑습니다.`});}
-    if(sold.length){const sd=sold[0]; const keep=sh.find(r=>r.t!==sd.t); cands.push({k:'sold',t:`${sd.t}, 우리는 ${sd.fh.a==='청산'?'다 팔았':'좀 줄였'}습니다(${sd.fh.a==='청산'?'전량':pct(sd.fh.dp,0,true)}). 논지 한 번 다시 보세요.${keep?` 그래도 ${keep.t}를 같이 들고 있는 건 든든합니다.`:''}`});}
-    if(sh.length>=2) cands.push({k:'route',t:`${o.ovl.toFixed(0)}% 겹칩니다. 특히 ${sh[0].t}·${sh[1].t}. ${op} 이 배는 우리 배와 같은 항로입니다.`});
-    const extra=fundOwn(f,q)[0]; if(top&&extra&&extra.w>=3) cands.push({k:'extra',t:`${top.t}, 우리도 좋게 봅니다. 여기에 우리가 ${extra.w.toFixed(1)}% 든 ${extra.t}까지 얹으면 그림이 완성됩니다.`});
-    if(!cands.length) cands.push({k:'plain',t:`${o.ovl.toFixed(0)}% 겹칩니다. ${op} 같이 봅니다.`});
-    pos.push({f,ovl:o.ovl,text:choose(cands,f.id+'p')});
-  });
-  const rest=ov.slice(8);
-  const scored=rest.map(o=>{const q=o.q; const sold=o.shared.filter(r=>r.fh.a==='축소'||r.fh.a==='청산').sort((a,b)=>(b.fh.pw||b.fh.w)-(a.fh.pw||a.fh.w));
-    const own=fundOwn(o.f,q); const alt=own.find(h=>h.s===cur.maxSec&&h.w>=2)||own[0]; const alt2=own.find(h=>h!==alt&&h.w>=2);
-    const fTop=q.holdings[0]; const fTopSec=topSector(q).split(' ')[0];
-    const score=(sold.length?3:0)+(o.ovl===0?2:0)+(alt&&alt.s===cur.maxSec?1:0)+(fTopSec!==cur.maxSec?1:0);
-    return {o,sold,alt,alt2,fTop,fTopSec,score};}).sort((a,b)=>b.score-a.score||b.o.q.total-a.o.q.total);
-  for(const x of scored){ if(neg.length>=5)break; const f=x.o.f; const cands=[];
-    if(x.sold.length){const sd=x.sold[0]; cands.push({k:'nsold',t:`${sd.t}, 우리는 ${sd.fh.a==='청산'?'전량 정리했':'줄였'}습니다. ${x.alt?`${x.alt.t}(우리 비중 ${x.alt.w.toFixed(1)}%)로 바꿔보는 건 어떻습니까?`:'다시 살 이유가 생기면 그때 보죠.'}`});}
-    if(our1&&x.fTop&&our1.w>=10&&x.fTop.w<our1.w) cands.push({k:'heavy',t:`${our1.t} ${our1.w.toFixed(0)}%, 과하지 않습니까? 우리 책에서 가장 큰 자리도 ${x.fTop.t} ${x.fTop.w.toFixed(0)}%입니다.`});
-    if(x.fTopSec&&x.fTopSec!==cur.maxSec&&x.alt) cands.push({k:'sector',t:`${cur.maxSec} ${cur.maxW.toFixed(0)}%… 우리는 ${x.fTopSec} 쪽입니다. ${x.alt.t}${x.alt2?`·${x.alt2.t}`:''} 정도는 봐두세요.`});
-    if(x.o.ovl===0&&x.fTop) cands.push({k:'none',t:`겹치는 게 하나도 없군요. 우리가 ${x.fTop.w.toFixed(0)}%로 가장 크게 든 ${x.fTop.t}부터 한 번 보시죠.`});
-    if(x.alt&&x.alt.s===cur.maxSec) cands.push({k:'same',t:`${cur.maxSec} 쪽을 좋아하시는군요. 그 안에서 우리 선택은 ${x.alt.t}(${x.alt.w.toFixed(1)}%)입니다. 같은 업종, 다른 배.`});
-    const t=choose(cands,f.id+'n'); if(t) neg.push({f,ovl:x.o.ovl,text:t});
-  }
-  return {pos,neg};
-}
-// ---------- persona comment engine ----------
-function comment(f, o, cur, prev){
-  const q=o.q; const shared=o.shared; const ovl=o.ovl;
-  const fTop=q.holdings[0]; const fTopSec=topSector(q).split(' ')[0];
-  const bought=shared.filter(r=>r.fh.a==='신규'||r.fh.a==='추가'), sold=shared.filter(r=>r.fh.a==='축소'||r.fh.a==='청산');
-  const our1=cur.rows[0]; const heldOur1=q.holdings.some(h=>h.t===our1.t&&h.a!=='청산');
-  const fundMix=q.mix; const secGap=[...SEC].map(s=>[s,cur.mix[s]-fundMix[s]]).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1]))[0];
-  const conc=cur.top10>=70?'high':cur.top10<=35?'low':'mid';
-  const d = prev? {top10:cur.top10-prev.top10, sec:[...SEC].map(s=>[s,cur.mix[s]-prev.mix[s]]).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1]))[0], n:cur.n-prev.n} : null;
-  const big = !!(d && Math.abs(d.sec[1])>=5);
-  const c={f,shared,ovl,bought,sold,fTop,fTopSec,our1,heldOur1,secGap,conc,d,big,cur,q,
-    names:a=>a.slice(0,3).map(r=>r.t).join('·'), n:cur.n, top10:cur.top10, maxSec:cur.maxSec, maxW:cur.maxW,
-    semi:cur.mix['반도체'], tech:cur.mix['테크·인터넷'], fin:cur.mix['금융'], hc:cur.mix['헬스케어'], en:cur.mix['에너지·소재']};
-  const v = VOICES[f.id] || STYLE_VOICES[f.style] || STYLE_VOICES.value;
-  return v(c);
-}
-const pick = (...cands)=>cands.find(x=>x);
-const TONE_POS=['좋습니다','좋아요','다행','닮았','우리도','같은 방향','같은 걸','잘 산','옳은','기회','좋은 회사','충분합니다','정당','나쁘지 않','우리 홈그라운드','우리 책','잘 샀','하지 마세요','환영'];
-const TONE_NEG=['틀렸','틀리면','무지','서두르','관성','습관','소음','노출입니다','두려워하지','안 삽니다','안 합니다','게임이 아닙니다','기도','왜 없습니까','왜 피하','왜 들고','리스크','헤지','과도','거품','열광','끝은 같았','비싸','잃','축소','무의미','어겼','뿐입니다','관심 밖','안 듣','안 무서워'];
-function tone(t){let s=0;for(const w of TONE_POS)if(t.includes(w))s+=1;for(const w of TONE_NEG)if(t.includes(w))s-=1;return s;}
-const VOICES = {
-  brk:c=>pick(
-    c.big&&`한 분기에 ${c.d.sec[0]} 비중을 ${pp(c.d.sec[1])} 움직였군요. 나는 10년 들고 갈 게 아니면 10분도 들고 있지 않습니다. 무엇이 바뀌었길래 그렇게 서두르나요.`,
-    c.conc==='low'&&`${c.n}종목에 TOP10이 ${c.top10.toFixed(0)}%면 분산이 아니라 무지에 대한 보험입니다. 정말 아는 회사 몇 개면 충분합니다.`,
-    c.heldOur1&&`${c.our1.t}를 가장 크게 들고 있군요. 우리도 들고 있습니다. 좋은 사업은 오래 들고 있을수록 값이 드러납니다.`,
-    c.semi>=25&&`반도체가 ${c.semi.toFixed(0)}%. 나는 사이클을 맞히는 재주가 없어서 그 게임은 안 합니다. 10년 뒤에도 해자가 남을 회사인지만 물어보세요.`,
-    c.fin>=20&&`금융이 ${c.fin.toFixed(0)}%면 우리와 닮았습니다. 단, 레버리지 사업은 경영진이 전부입니다. 숫자보다 사람을 보세요.`,
-    c.ovl>=20&&`우리와 ${c.ovl.toFixed(0)}% 겹칩니다. 다행입니다. 남들이 탐욕스러울 때 두려워하기만 하면 됩니다.`,
-    `우리와는 ${c.ovl.toFixed(0)}%밖에 안 겹치는군요. 상관없습니다. 능력 범위 안에서만 치면 됩니다. 그 범위가 어디까지인지 아는 게 실력입니다.`),
-  pershing:c=>pick(
-    c.conc==='high'&&`TOP10 ${c.top10.toFixed(0)}%. 좋습니다. 확신이 있으면 크게 사야 합니다. 그런데 이사회에 전화할 준비는 돼 있나요?`,
-    c.n>40&&`${c.n}종목이라니. 나는 8~12개면 충분합니다. 41번째 아이디어가 1번째만큼 좋을 리 없습니다.`,
-    c.bought.length&&`${c.names(c.bought)}, 우리도 이번 분기에 더 샀습니다. 단순하고 예측 가능한 현금흐름이면 밸류에이션은 시간이 해결합니다.`,
-    c.sold.length&&`${c.names(c.sold)}는 우리가 줄인 종목입니다. 논지가 바뀌면 크기를 바꿔야 합니다. 당신의 논지는 아직 유효한가요?`,
-    `${c.maxSec} ${c.maxW.toFixed(0)}%. 집중은 좋은데 그 회사들에 당신이 영향을 미칠 수 있습니까? 못 미치면 그건 집중이 아니라 노출입니다.`),
-  scion:c=>pick(
-    c.semi>=20&&`반도체 ${c.semi.toFixed(0)}%. 모두가 같은 쪽 배에 타 있을 때 배는 기울어집니다. 나는 반대편에 풋을 들고 있었습니다.`,
-    c.tech>=35&&`테크·인터넷이 ${c.tech.toFixed(0)}%. 시장이 사랑하는 것을 시장과 같은 값에 사면 남는 건 시장 수익률뿐입니다. 그마저도 운이 좋을 때 얘기고.`,
-    c.bought.length&&c.bought.some(r=>r.w>=5)&&`${c.names(c.bought)}에 펀드들이 몰려드는군요. 군중이 도착하면 나는 떠납니다.`,
-    (c.hc>=15||c.en>=15)&&`${c.hc>=15?'헬스케어':'에너지·소재'}에 ${Math.max(c.hc,c.en).toFixed(0)}%. 미움받는 자리에 있군요. 거기가 내가 좋아하는 자리입니다.`,
-    `숫자만 봅니다. TOP10 ${c.top10.toFixed(0)}%, ${c.n}종목. 당신이 무엇을 믿는지보다 무엇이 틀렸을 때 얼마를 잃는지가 먼저입니다.`),
-  duquesne:c=>pick(
-    c.big&&`${c.d.sec[0]}를 ${pp(c.d.sec[1])} 움직였군요. 좋습니다. 틀렸다고 느끼면 바로 뒤집으세요. 나는 분기마다 다른 사람이 됩니다.`,
-    c.d&&Math.abs(c.d.top10)<3&&!c.big&&`직전 스냅샷과 거의 같습니다. 유동성 환경이 그대로였나요? 세상이 바뀌었는데 포트폴리오가 그대로면 그건 신념이 아니라 관성입니다.`,
-    c.semi>=20&&`반도체 ${c.semi.toFixed(0)}%. 우리도 AI 쪽에 크게 걸었다가 크게 줄였습니다. 이익이 아니라 유동성이 주가를 움직입니다. 연준을 보세요.`,
-    c.conc==='high'&&`TOP10 ${c.top10.toFixed(0)}%. 좋은 아이디어가 있으면 배를 몰아넣어야 합니다. 단, 나갈 문이 어디인지는 들어가기 전에 알아두세요.`,
-    `${c.maxSec} ${c.maxW.toFixed(0)}%가 최대 비중. 그 업종의 다음 12개월 유동성 그림이 머릿속에 있습니까? 없으면 비중이 아니라 습관입니다.`),
-  appaloosa:c=>pick(
-    c.semi>=25&&`반도체 ${c.semi.toFixed(0)}%. 우리 책과 비슷합니다. 다만 우리는 사이클이 꺾이는 냄새가 나면 하루에 절반을 팝니다. 당신은?`,
-    c.bought.length>=2&&`${c.names(c.bought)}, 우리도 샀습니다. 다들 무서워할 때 사는 겁니다. 그런데 지금 무서워하는 사람이 있긴 한가요?`,
-    c.tech+c.semi>=60&&`테크에 ${(c.tech+c.semi).toFixed(0)}%. 랠리는 즐기되 파티 끝나기 10분 전엔 나가야 합니다. 나갈 시간은 아무도 안 알려줍니다.`,
-    c.sold.length&&`${c.names(c.sold)}는 우리가 던진 겁니다. 이유는 간단합니다. 더 좋은 게 보여서요.`,
-    `${c.maxSec}에 ${c.maxW.toFixed(0)}%. 나쁘지 않아요. 문제는 그게 틀렸을 때 얼마나 빨리 인정하느냐입니다.`),
-  tiger:c=>pick(
-    c.tech>=35&&`테크·인터넷 ${c.tech.toFixed(0)}%. 우리 책을 보는 것 같군요. 2022년에 우리가 배운 건 하나입니다. 성장은 금리 앞에서 무릎을 꿇는다는 것.`,
-    c.bought.length&&`${c.names(c.bought)}, 같은 방향입니다. 인터넷 플랫폼은 승자가 전부 가져갑니다. 그 승자를 들고 있는지만 확인하세요.`,
-    c.tech<15&&`테크가 ${c.tech.toFixed(0)}%뿐이군요. 세상의 이익 성장 절반이 그 안에서 나옵니다. 왜 피하시나요.`,
-    `${c.n}종목에 TOP10 ${c.top10.toFixed(0)}%. 우리는 상장·비상장을 넘나들며 같은 논지를 여러 번 삽니다. 당신의 논지는 몇 개입니까?`),
-  coatue:c=>pick(
-    c.semi>=20&&`반도체 ${c.semi.toFixed(0)}%. AI 인프라 사이클은 아직 초반이라고 봅니다. 문제는 어느 층인가요. 칩, 전력, 아니면 애플리케이션?`,
-    c.bought.length&&`${c.names(c.bought)}, 우리 데이터도 같은 걸 가리킵니다. 우리는 카드 결제·앱 데이터로 분기 전에 봅니다. 당신은 무엇으로 보나요?`,
-    c.tech+c.semi<30&&`테크 노출이 ${(c.tech+c.semi).toFixed(0)}%. 기술 패러다임 전환기엔 노출이 없는 게 가장 큰 리스크입니다.`,
-    `${c.maxSec} ${c.maxW.toFixed(0)}%. 다음 패러다임의 수혜자가 그 안에 있습니까? 있다면 크게, 없다면 왜 들고 있습니까?`),
-  ark:c=>pick(
-    c.hc>=15&&`헬스케어 ${c.hc.toFixed(0)}%. 유전체·멀티오믹스는 5년 안에 진단을 바꿉니다. 그 안에 파괴적 혁신 기업이 있기를 바랍니다.`,
-    c.fin>=20&&`금융 ${c.fin.toFixed(0)}%. 전통 금융은 디지털 지갑과 블록체인에 잠식됩니다. 혁신하는 쪽을 들고 있습니까?`,
-    c.conc==='low'&&`${c.n}종목 분산이군요. 5년 뒤 세상을 바꿀 회사는 몇 개 안 됩니다. 그 몇 개에 집중하면 변동성은 입장료일 뿐입니다.`,
-    c.bought.length&&`${c.names(c.bought)}, 우리도 사고 있습니다. 혁신은 늘 처음엔 비싸 보입니다.`,
-    `${c.maxSec} ${c.maxW.toFixed(0)}%. 좋습니다. 다만 5년 뒤 그 산업의 비용 곡선이 어디 있을지 그려보세요. 우리는 그것만 봅니다.`),
-  bridgewater:c=>pick(
-    c.maxW>=45&&`${c.maxSec} 한 업종에 ${c.maxW.toFixed(0)}%. 어떤 경제 환경에서 이 포트폴리오가 무너지는지 적어봤습니까? 우리는 그것부터 적습니다.`,
-    c.en<5&&`에너지·소재가 ${c.en.toFixed(0)}%. 인플레이션이 돌아오는 환경에서 무엇이 당신을 지켜줍니까? 성장 환경에만 베팅한 포트폴리오입니다.`,
-    c.conc==='high'&&`TOP10 ${c.top10.toFixed(0)}%는 종목 리스크입니다. 우리는 종목이 아니라 환경에 베팅합니다. 다각화는 공짜 점심입니다.`,
-    `${c.n}종목, 8업종 중 ${SEC.filter(s=>c.cur.mix[s]>=5).length}개 업종에 의미 있는 노출. 리스크 균형은 어떤가요? 비중 균형과는 다른 얘기입니다.`),
-  elliott:c=>pick(
-    c.sold.length&&`${c.names(c.sold)}. 우리가 손을 뗀 데엔 이유가 있습니다. 경영진이 바뀌든 회사가 팔리든 결론이 났다는 뜻입니다.`,
-    c.bought.length&&`${c.names(c.bought)}에 우리가 들어갔습니다. 곧 이사회에 편지가 갈 겁니다. 함께 들고 있다면 표를 주시길.`,
-    c.conc==='low'&&`${c.n}종목에 나눠 들면 어느 회사 경영진도 당신을 두려워하지 않습니다. 지분은 영향력이어야 합니다.`,
-    `${c.maxSec}에 ${c.maxW.toFixed(0)}%. 그 회사들 중 이사회 구성이 마음에 안 드는 곳이 있으면 알려주세요. 우리가 대신 편지를 씁니다.`),
-  icahn:c=>pick(
-    c.bought.length&&`${c.names(c.bought)}? 나도 갖고 있어요. 경영진이 일을 안 하면 내가 하게 만들 겁니다.`,
-    c.tech+c.semi>=50&&`테크에 ${(c.tech+c.semi).toFixed(0)}%. 40년 동안 이런 열광을 다섯 번은 봤습니다. 다 끝은 같았어요.`,
-    c.conc==='low'&&`${c.n}종목이면 아무도 안 무서워합니다. 나는 몇 개를 크게 들고 문을 두드립니다.`,
-    `${c.maxSec} ${c.maxW.toFixed(0)}%. 좋아요. 그 회사 이사회 명단 좀 봅시다.`),
-  baupost:c=>pick(
-    c.tech+c.semi>=55&&`테크 ${(c.tech+c.semi).toFixed(0)}%. 안전마진이 어디에 있습니까? 성장이 안전마진이 되는 건 값이 쌀 때뿐입니다.`,
-    (c.hc>=15||c.fin>=20)&&`${c.hc>=15?'헬스케어':'금융'}에 무게가 있군요. 시장이 오해하는 자산이 거기 있다면 옳은 자리입니다.`,
-    c.conc==='high'&&`TOP10 ${c.top10.toFixed(0)}%. 확신은 좋지만 확신은 손실을 막아주지 않습니다. 살 게 없으면 현금을 드세요.`,
-    `우리와 ${c.ovl.toFixed(0)}% 겹칩니다. 우리가 안 들고 있는 건 대개 비싸서입니다. 당신 것도 그런지 계산해 보세요.`),
-  himalaya:c=>pick(
-    c.n>30&&`${c.n}종목이군요. 나는 5개 안팎입니다. 정말 이해하는 회사가 30개일 수는 없습니다.`,
-    c.d&&Math.abs(c.d.top10)<3&&!c.big&&`직전과 거의 같습니다. 좋습니다. 좋은 회사를 샀으면 할 일은 기다리는 것뿐입니다.`,
-    c.big&&`한 분기에 ${c.d.sec[0]} 비중이 ${pp(c.d.sec[1])}. 회사가 바뀌었나요, 당신 마음이 바뀌었나요? 후자라면 사기 전에 덜 알았던 겁니다.`,
-    c.heldOur1&&`${c.our1.t}에 가장 큰 비중. 그 회사 10년 뒤 이익을 지금 말할 수 있다면 잘 산 겁니다.`,
-    `우리와 ${c.ovl.toFixed(0)}% 겹칩니다. 겹침은 중요하지 않습니다. 각 회사의 20년이 머릿속에 있느냐가 중요합니다.`),
-  altimeter:c=>pick(
-    c.semi>=20&&`반도체 ${c.semi.toFixed(0)}%. 우리는 AI 인프라에 사실상 올인입니다. 플랫폼 전환 초입에 분산은 기회비용입니다.`,
-    c.bought.length&&`${c.names(c.bought)}, 팟캐스트에서 말한 그대로 우리도 샀습니다. 논지를 공개하고 그대로 사는 게 우리 방식입니다.`,
-    c.tech+c.semi<30&&`AI 노출이 ${(c.tech+c.semi).toFixed(0)}%. 90년대 인터넷을 안 산 매니저들이 지금 어디 있는지 생각해보세요.`,
-    `${c.maxSec} ${c.maxW.toFixed(0)}%. 좋아요. 그 안에서 이번 10년의 플랫폼 승자는 누구입니까? 하나로 답해보세요.`),
-  soros:c=>pick(
-    c.big&&`${c.d.sec[0]}를 ${pp(c.d.sec[1])} 움직였군요. 시장이 착각하는 지점을 찾았다면 좋은 매매입니다. 못 찾았으면 소음입니다.`,
-    c.tech+c.semi>=55&&`테크 ${(c.tech+c.semi).toFixed(0)}%. 상승이 상승을 부르는 재귀 국면입니다. 올라탈 순 있지만 언제 내릴지는 정해두세요.`,
-    c.conc==='high'&&`TOP10 ${c.top10.toFixed(0)}%. 맞으면 얼마를 벌고 틀리면 얼마를 잃는지, 둘 중 뒤의 숫자가 더 중요합니다.`,
-    `${c.n}종목 중 시장의 오해 위에 세워진 게 몇 개입니까? 나머지는 시장과 같은 수익률을 낼 뿐입니다.`),
-  citadel:c=>pick(
-    c.conc==='high'&&`TOP10 ${c.top10.toFixed(0)}%. 우리 기준으로는 리스크 한도를 몇 배 초과입니다. 팩터 노출부터 헤지하세요.`,
-    c.maxW>=40&&`${c.maxSec} ${c.maxW.toFixed(0)}%는 종목 선택이 아니라 업종 베팅입니다. 알파와 베타를 분리해서 보십시오.`,
-    `${c.n}종목, ${c.maxSec} ${c.maxW.toFixed(0)}%. 이 포트폴리오의 수익 중 시장·업종 베타를 빼면 얼마가 남습니까? 남는 것만 실력입니다.`),
-  rentech:c=>pick(
-    c.conc==='high'&&`TOP10 ${c.top10.toFixed(0)}%. 우리 모델엔 확신이라는 변수가 없습니다. 있는 건 신호와 노이즈뿐입니다.`,
-    `${c.n}종목. 이 안에서 통계적으로 유의한 우위가 있는 자리가 몇 개입니까? 나머지는 노이즈에 낸 수수료입니다.`),
-  tci:c=>pick(
-    c.n>25&&`${c.n}종목. 우리는 10개 남짓입니다. 독점적 인프라를 찾으면 10년을 들고, 못 찾으면 안 삽니다.`,
-    c.tech>=30&&`테크 ${c.tech.toFixed(0)}%. 플랫폼도 인프라입니다. 대체 불가능한지, 가격결정력이 있는지, 둘 다면 오래 들고 가세요.`,
-    c.heldOur1&&`${c.our1.t} 최대 비중. 진입장벽이 10년 뒤에도 있습니까? 있다면 이사회에 편지 한 통 정도는 써도 됩니다.`,
-    `${c.maxSec} ${c.maxW.toFixed(0)}%. 그 안에 독점이 있습니까? 경쟁이 있는 사업은 우리 관심 밖입니다.`),
-  trian:c=>pick(
-    c.cur.mix['소비재']>=15&&`소비재 ${c.cur.mix['소비재'].toFixed(0)}%. 우리 홈그라운드입니다. 마진 개선 여지가 있는 브랜드라면 우리가 이미 이사회에 앉아 있을지도.`,
-    c.bought.length&&`${c.names(c.bought)}. 우리도 샀습니다. 경영진에게 보낼 계획서는 이미 써뒀습니다.`,
-    c.tech+c.semi>=50&&`테크 ${(c.tech+c.semi).toFixed(0)}%. 우리는 이해할 수 있는 사업의 마진을 고치는 일을 합니다. 그건 우리 게임이 아닙니다.`,
-    `${c.maxSec} ${c.maxW.toFixed(0)}%. 그 회사들 영업이익률이 동종 최고 대비 얼마나 낮은지 아십니까? 그 갭이 우리 수익입니다.`),
-  fundsmith:c=>pick(
-    c.big&&`한 분기에 ${c.d.sec[0]}를 ${pp(c.d.sec[1])}. 우리 규칙은 셋입니다. 좋은 회사를 사고, 비싸게 사지 말고, 아무것도 하지 마세요. 세 번째를 어겼군요.`,
-    c.semi>=20&&`반도체 ${c.semi.toFixed(0)}%. 자본집약적이고 순환적인 사업은 ROCE가 들쭉날쭉합니다. 우리는 안 삽니다.`,
-    c.cur.mix['소비재']+c.hc>=35&&`소비재·헬스케어에 ${(c.cur.mix['소비재']+c.hc).toFixed(0)}%. 우리 책과 닮았습니다. 이제 아무것도 하지 마세요.`,
-    `${c.n}종목. 우리는 20~30개를 몇 년째 거의 안 건드립니다. 회전율은 낮을수록 좋습니다.`),
-  bakerbros:c=>pick(
-    c.hc>=20&&`헬스케어 ${c.hc.toFixed(0)}%. 임상 데이터를 직접 읽으십니까? 우리는 그것 말고는 안 봅니다.`,
-    c.hc<5&&`헬스케어가 ${c.hc.toFixed(0)}%. 다음 10년 가장 큰 가치 창출이 생물학에서 나옵니다. 왜 없습니까?`,
-    c.shared.some(r=>r.sec==='헬스케어')&&`${c.names(c.shared.filter(r=>r.sec==='헬스케어'))}, 같이 들고 있군요. 우리는 이런 회사에 10년을 걸고 지분을 20%까지 늘립니다.`,
-    `바이오는 분산이 답이 아닙니다. 데이터를 이해하는 몇 개에 크게. ${c.maxSec}에서 그렇게 하고 계십니까?`),
-  gates:c=>pick(
-    c.heldOur1&&c.our1.t.startsWith('BRK')&&`버크셔가 최대 비중이군요. 우리도 그렇습니다. 다만 우리는 팔아야 해서 파는 거고, 당신은 들고 있어도 됩니다.`,
-    c.conc==='high'&&`TOP10 ${c.top10.toFixed(0)}%. 재단 자금이라면 못 할 집중입니다. 매년 나가야 할 돈이 있다면 변동성이 곧 리스크입니다.`,
-    `${c.n}종목, ${c.maxSec} ${c.maxW.toFixed(0)}%. 30년을 운용하는 자금이라면 무엇이 살아남을지만 물어보세요. 우리는 그것만 묻습니다.`),
-  tudor:c=>pick(
-    c.big&&`${c.d.sec[0]}를 ${pp(c.d.sec[1])} 움직였군요. 좋습니다. 지는 포지션에 물타기만 안 하면 됩니다. 나는 5:1 손익비가 안 나오면 안 칩니다.`,
-    c.conc==='high'&&`TOP10 ${c.top10.toFixed(0)}%. 어디서 틀렸다고 인정할지 가격을 정해뒀습니까? 없으면 그건 포지션이 아니라 기도입니다.`,
-    `${c.maxSec} ${c.maxW.toFixed(0)}%. 매크로 그림이 그 업종을 밀어주고 있습니까? 아니면 차트가 먼저 알려줄 겁니다.`),
-};
-const STYLE_VOICES = {
-  value:c=>pick(
-    c.tech+c.semi>=55&&`테크에 ${(c.tech+c.semi).toFixed(0)}%. 좋은 회사인 건 압니다. 좋은 가격인지가 문제입니다.`,
-    c.big&&`한 분기에 ${c.d.sec[0]} ${pp(c.d.sec[1])}. 가치는 그렇게 빨리 안 바뀝니다. 가격이 바뀐 건가요, 판단이 바뀐 건가요?`,
-    c.shared.length&&`${c.names(c.shared)}, 우리와 같이 들고 있군요. 싸게 샀다면 기다리는 일만 남았습니다.`,
-    `${c.maxSec} ${c.maxW.toFixed(0)}%. 그 업종의 정상 이익 대비 지금 값이 얼마인지부터 계산해 보세요.`),
-  growth:c=>pick(
-    c.bought.length&&`${c.names(c.bought)}, 우리도 이번 분기에 늘렸습니다. 이익이 복리로 자라는 회사는 비싸 보여도 결국 싸집니다.`,
-    c.tech+c.semi<25&&`성장 노출이 ${(c.tech+c.semi).toFixed(0)}%. 이익 성장이 나오는 곳에 돈이 없군요. 밸류에이션보다 사업의 질을 먼저 보세요.`,
-    c.sold.length&&`${c.names(c.sold)}는 우리가 줄였습니다. 성장이 꺾이는 신호가 보이면 밸류에이션은 의미가 없어집니다.`,
-    `${c.maxSec} ${c.maxW.toFixed(0)}%. 그 안에서 3년 뒤 이익이 두 배가 될 회사가 몇 개입니까? 그것만 남기세요.`),
-  macro:c=>pick(
-    c.big&&`${c.d.sec[0]}를 ${pp(c.d.sec[1])}. 매크로 그림이 바뀌었다면 옳은 대응입니다. 안 바뀌었다면 왜 움직였나요?`,
-    c.en<5&&`에너지·소재 ${c.en.toFixed(0)}%. 인플레이션·지정학 헤지가 없는 포트폴리오입니다.`,
-    `${c.maxSec} ${c.maxW.toFixed(0)}%. 금리와 달러가 반대로 가면 이 포트폴리오는 어떻게 됩니까? 그 답이 리스크 관리입니다.`),
-  activist:c=>pick(
-    c.conc==='low'&&`${c.n}종목에 나눠 들면 어느 경영진도 당신 말을 안 듣습니다. 지분은 목소리여야 합니다.`,
-    c.bought.length&&`${c.names(c.bought)}, 우리도 들어갔습니다. 경영진이 알아서 잘하면 좋고, 아니면 우리가 도와줄 겁니다.`,
-    `${c.maxSec} ${c.maxW.toFixed(0)}%. 그 회사들 중 자본배분이 엉망인 곳이 있으면 그게 기회입니다.`),
-  quant:c=>pick(
-    c.conc==='high'&&`TOP10 ${c.top10.toFixed(0)}%. 종목 특이 리스크가 팩터 리스크를 압도합니다. 우리 모델이라면 즉시 축소.`,
-    `${c.n}종목, ${c.maxSec} ${c.maxW.toFixed(0)}%. 이 수익의 몇 %가 베타이고 몇 %가 알파인지 분해해 보십시오.`),
-  tech:c=>pick(
-    c.tech+c.semi<30&&`테크 노출 ${(c.tech+c.semi).toFixed(0)}%. 이번 사이클의 이익 성장은 대부분 그 안에서 나옵니다.`,
-    c.bought.length&&`${c.names(c.bought)}, 우리도 같은 방향입니다. 사이클 상단에서 가장 공격적인 게 우리 방식이니 조심하십시오.`,
-    `${c.maxSec} ${c.maxW.toFixed(0)}%. 반도체·소프트웨어·인터넷 밖은 우리 관심 밖입니다. 그 안에서 승자만 남기세요.`),
-};
+const MY={name:'',snaps:{},rets:{},secmap:{}};  // 우리 회사 탭 삭제(2026-11-17), 수익률 비교 호환용
 
 // ---------- returns comparison ----------
 const PALETTE=['--c1','--c2','--c3','--c4','--c5','--c6','--c7','--c8'];
@@ -1033,22 +707,10 @@ function renderGallery(){
   bar.innerHTML=orderBar('galleryOrderBar');
   bindOrder(bar); bindStars($('#gallery')); bindOpen($('#gallery'));
 }
-function renderLanding(){
-  const leaders=D.funds.filter(f=>f.leader);
-  const berry=v=>Math.round(v).toLocaleString('en-US')+'-';
-  $('#posters').innerHTML=leaders.map(f=>{const q=lastQ(f);return `<div class="poster" data-id="${f.id}" role="button" tabindex="0">
-    <div class="stamp">${{quant:'퀀트',tech:'테크'}[f.style]||styleName(f.style)}</div><div class="w">WANTED</div>
-    <div class="art">${f.portrait?`<img src="${f.portrait}" alt="${esc(f.manager_en)}">`:`<div class="ph">${initials(f)}</div>`}</div>
-    <div class="doa">DEAD OR ALIVE</div><div class="pn ${f.manager_en.length>14?'long':''}">${esc(f.manager_en)}</div><div class="pk">${esc(f.manager_ko)} · ${esc(f.name_ko)}</div>
-    <div class="bounty" title="13F 롱북 총액 ${usd(q.total)}"><span class="b">₿</span>${berry(q.total)}</div>
-    <div class="foot"><div class="tagl">「${esc(f.card.title)}」<br>최근 1년 ${f.ret_ok&&f.win['1Y']!=null?pct(f.win['1Y'],0,true):'—'} · ${qLabel(f.latest)}</div><div class="marine">MARINE</div></div></div>`;}).join('');
-  $('#posters').querySelectorAll('.poster').forEach(p=>{const go=()=>{curFund=p.dataset.id;curQ=null;renderPicker();renderFund();showView('fund');window.scrollTo({top:0});};p.onclick=go;p.onkeydown=e=>{if(e.key==='Enter'||e.key===' ')go();};});
-  document.querySelectorAll('#v-land [data-go]').forEach(b=>b.onclick=()=>showView(b.dataset.go));
-}
 function bindStars(root){root.querySelectorAll('[data-star]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();toggleWatch(b.dataset.star);}));}
 function bindOpen(root){root.querySelectorAll('.card[data-id]').forEach(c=>c.addEventListener('click',()=>{curFund=c.dataset.id;curQ=null;renderPicker();renderFund();showView('fund');window.scrollTo({top:0});}));}
 
 if(D.wallpaper){document.documentElement.style.setProperty('--wall',`url(${D.wallpaper})`);document.body.classList.add('wall');}
 curFund = D.funds[0].id;
-showView(lsGet('13fdeck.view','land'));
+{const v0=lsGet('13fdeck.view','cons'); showView(RENDER[v0]?v0:'cons');}
 </script>
